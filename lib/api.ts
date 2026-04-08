@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Note, NoteTag } from "@/types/note";
+import type { Note } from "@/types/note";
 
 interface FetchNotesResponse {
     notes: Note[];
