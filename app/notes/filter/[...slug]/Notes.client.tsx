@@ -11,10 +11,10 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchNotes } from '@/lib/api';
 import Pagination from '@/components/Pagination/Pagination';
 import NoteList from '@/components/NoteList/NoteList';
-import Modal from '@/components//Modal/Modal';
-import NoteForm from '@/components/NoteForm/NoteForm';
+/* import Modal from '@/components//Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm'; */
 import {  Toaster } from 'react-hot-toast';
-
+import Link from 'next/link';
 
 
 type NoteClientProps = {
@@ -44,38 +44,31 @@ export default function NotesClient({tag}: NoteClientProps) {
 		setPage(page); 
 	}
     
-	
-	
-	const [modalOpen, setModalOpen] = useState(false);
+	/* const [modalOpen, setModalOpen] = useState(false);
 	
 	const openModal = () => setModalOpen(true);
-	const closeModal = () => setModalOpen(false);
+	const closeModal = () => setModalOpen(false); */
     
-
-	
-
-
-	
-
 	return (
-        <div className={css.app}>
-	        <div className={css.toolbar}>
-		        <SearchBox onChange={handleSearchChange} />
+		<div className={css.app}>
+			<div className={css.toolbar}>
+				<SearchBox onChange={handleSearchChange} />
 				{data && data.totalPages > 1 && (
-					<Pagination totalPages={totalPages} forcePage={page} onPageChange={onPageChange}/>
+					<Pagination totalPages={totalPages} forcePage={page} onPageChange={onPageChange} />
 				)}
-		        <button className={css.button} onClick={openModal}>Create note +</button>
-            </div>
-            {isLoading && <Loader />}
+				<Link className={css.button} href="/notes/actions/create">Create note +</Link>
+				{/* <button className={css.button} onClick={openModal}>Create note +</button> */}
+			</div>
+			{isLoading && <Loader />}
 			{isError && <ServerError />}
-			{data && data.notes.length === 0 && <NoNotesError/>}
-            {isSuccess && data && (<NoteList notes={data.notes} />)}
+			{data && data.notes.length === 0 && <NoNotesError />}
+			{isSuccess && data && (<NoteList notes={data.notes} />)}
             
-			{modalOpen && (
+			{/* {modalOpen && (
 				<Modal onClose={closeModal}>
 					<NoteForm onClose={closeModal} />
-				</Modal>)}
+				</Modal>)} */}
 			<Toaster />
-        </div>
-   )
-}
+		</div>
+	);
+};

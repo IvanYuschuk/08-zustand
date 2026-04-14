@@ -1,4 +1,4 @@
-import { Formik, Form, Field, ErrorMessage} from 'formik';
+/* import { Formik, Form, Field, ErrorMessage} from 'formik';
 import css from './NoteForm.module.css';
 import { useId } from 'react';
 import type { FormikHelpers } from 'formik';
@@ -61,52 +61,146 @@ export default function NoteForm({ onClose}: NoteFormProps) {
         onCreate(values);
      }
 
-    return (
-        <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={NoteFormSchema}>
-        <Form className={css.form}>
-  <div className={css.formGroup}>
-    <label htmlFor={`${formId}-title`}>Title</label>
-    <Field id={`${formId}-title`} type="text" name="title" className={css.input} />
-     <ErrorMessage component="span" name="title" className={css.error} /> 
-  </div>
+  return (
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={NoteFormSchema}>
+      <Form className={css.form}>
+        <div className={css.formGroup}>
+          <label htmlFor={`${formId}-title`}>Title</label>
+          <Field id={`${formId}-title`} type="text" name="title" className={css.input} />
+          <ErrorMessage component="span" name="title" className={css.error} />
+        </div>
 
-  <div className={css.formGroup}>
-    <label htmlFor={`${formId}-content`}>Content</label>
-    <Field as="textarea"
-      id={`${formId}-content`}
-      name="content"
-      rows={8}
-      className={css.textarea}
-    />
-    <ErrorMessage component="span" name="content" className={css.error} />
-  </div>
+        <div className={css.formGroup}>
+          <label htmlFor={`${formId}-content`}>Content</label>
+          <Field as="textarea"
+            id={`${formId}-content`}
+            name="content"
+            rows={8}
+            className={css.textarea}
+          />
+          <ErrorMessage component="span" name="content" className={css.error} />
+        </div>
 
-  <div className={css.formGroup}>
-    <label htmlFor={`${formId}-tag`}>Tag</label>
-    <Field as="select" id={`${formId}-tag`} name="tag" className={css.select}>
-      <option value="Todo">Todo</option>
-      <option value="Work">Work</option>
-      <option value="Personal">Personal</option>
-      <option value="Meeting">Meeting</option>
-      <option value="Shopping">Shopping</option>
-    </Field>
-    <ErrorMessage component="span" name="tag" className={css.error} />
-  </div>
+        <div className={css.formGroup}>
+          <label htmlFor={`${formId}-tag`}>Tag</label>
+          <Field as="select" id={`${formId}-tag`} name="tag" className={css.select}>
+            <option value="Todo">Todo</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Shopping">Shopping</option>
+          </Field>
+          <ErrorMessage component="span" name="tag" className={css.error} />
+        </div>
 
-  <div className={css.actions}>
-    <button type="button" className={css.cancelButton} onClick={onClose}>
-      Cancel
-    </button>
-    <button
-      type="submit"
-      className={css.submitButton}
-      disabled={false}
-    >
-      Create note
-    </button>
-  </div>
-            </Form>
-        </Formik>
+        <div className={css.actions}>
+          <button type="button" className={css.cancelButton} onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={css.submitButton}
+            disabled={false}
+          >
+            Create note
+          </button>
+        </div>
+      </Form>
+    </Formik>
+  );
+}; */
 
-    )
- }
+"use client";
+
+import { NoteTag } from '@/types/note';
+import css from './NoteForm.module.css';
+import { useRouter } from 'next/navigation';
+import { useId } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createNote } from '@/lib/api';
+import { toast } from 'react-hot-toast';
+import { useNoteDraftStore } from '@/lib/store/noteStore';
+
+type NoteFormValues = {
+  title: string;
+  content: string;
+  tag: NoteTag;
+};
+
+export default function NoteForm() {
+  const formId = useId();
+
+  const router = useRouter();
+  
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+
+  const createToast = () => toast.success('Note created successfully!');
+  const createToastError = () => toast.error('Failed to create the note. Please try later.');
+  
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      createToast();
+      clearDraft();
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      router.push("/notes/filter/all");
+    },
+    onError: () => {
+      router.push("/notes/filter/all");
+      createToastError();
+    },
+  });
+
+  const handleSumbit = (formData: FormData) => {
+    const values = Object.fromEntries(formData) as NoteFormValues;
+    createMutation.mutate(values);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setDraft({ ...draft, [name]: value });
+  };
+  const handleCancle = () => {
+    router.push("/notes/filter/all");
+  }
+
+  return (
+    <form action={handleSumbit} className={css.form}>
+      <div className={css.formGroup}>
+        <label htmlFor={`${formId}-title`}>Title</label>
+        <input id={`${formId}-title`} type="text" name="title" className={css.input} defaultValue={draft.title} onChange={handleChange}/>
+      </div>
+      
+      <div className={css.formGroup}>
+        <label htmlFor={`${formId}-content`}>Content</label>
+        <textarea id={`${formId}-content`} name="content" rows={8} className={css.textarea} defaultValue={draft.content} onChange={handleChange}/>
+      </div>
+
+      <div className={css.formGroup}>
+        <label htmlFor={`${formId}-tag`}>Tag</label>
+        <select id={`${formId}-tag`} name="tag" className={css.select} defaultValue={draft.tag} onChange={handleChange}>
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
+        </select>
+      </div>
+
+      <div className={css.actions}>
+        <button type="button" className={css.cancelButton} onClick={handleCancle}>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className={css.submitButton}
+          disabled={false}
+        >
+          Create note
+        </button>
+      </div>
+    </form>
+  );
+};
