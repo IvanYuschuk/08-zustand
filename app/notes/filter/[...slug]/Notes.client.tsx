@@ -56,7 +56,7 @@ export default function NotesClient({tag}: NoteClientProps) {
 				{data && data.totalPages > 1 && (
 					<Pagination totalPages={totalPages} forcePage={page} onPageChange={onPageChange} />
 				)}
-				<Link className={css.button} href="/notes/actions/create">Create note +</Link>
+				<Link className={css.button} href="/notes/action/create">Create note +</Link>
 				{/* <button className={css.button} onClick={openModal}>Create note +</button> */}
 			</div>
 			{isLoading && <Loader />}
