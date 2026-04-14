@@ -153,7 +153,7 @@ export default function NoteForm() {
     },
   });
 
-  const handleSumbit = (formData: FormData) => {
+  const handleSubmit = (formData: FormData) => {
     const values = Object.fromEntries(formData) as NoteFormValues;
     createMutation.mutate(values);
   };
@@ -162,12 +162,12 @@ export default function NoteForm() {
     const { name, value } = event.target;
     setDraft({ ...draft, [name]: value });
   };
-  const handleCancle = () => {
+  const handleCancel = () => {
     router.push("/notes/filter/all");
   }
 
   return (
-    <form action={handleSumbit} className={css.form}>
+    <form action={handleSubmit} className={css.form}>
       <div className={css.formGroup}>
         <label htmlFor={`${formId}-title`}>Title</label>
         <input id={`${formId}-title`} type="text" name="title" className={css.input} defaultValue={draft.title} onChange={handleChange}/>
@@ -190,7 +190,7 @@ export default function NoteForm() {
       </div>
 
       <div className={css.actions}>
-        <button type="button" className={css.cancelButton} onClick={handleCancle}>
+        <button type="button" className={css.cancelButton} onClick={handleCancel}>
           Cancel
         </button>
         <button
